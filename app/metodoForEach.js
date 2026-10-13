@@ -1,37 +1,34 @@
 const elementoParaInserirLivros = document.getElementById("livros");
-const elementoComValorTotalDeLivrosDisponiveis = document.getElementById('valor_total_livros_disponiveis')
+const elementoComValorTotalDeLivrosDisponiveis = document.getElementById("valor_total_livros_disponiveis");
 
 function exibirOsLivrosNaTela(listaDeLivros) {
-  elementoComValorTotalDeLivrosDisponiveis.innerHTML = ''
-  elementoParaInserirLivros.innerHTML = "";
-
-  listaDeLivros.forEach((livro) => {
-    // let disponibilidade = verificarDisponibilidadeDoLivro(livro);
-
-    let disponibilidade =
-      livro.quantidade > 0 ? "livro_imagens" : "livro_imagens indisponivel";
-
-    elementoParaInserirLivros.innerHTML += `
-          <div class="livro">
-          <img class="${disponibilidade}" src="${livro.imagem}" 
-          alt="${livro.alt}" />
-          <h2 class="livro__titulo">
-          ${livro.titulo}
-          </h2>
-          <p class="livro__descricao">${livro.autor}</p>
-          <p class="livro__preco" id="preco">R$${livro.preco.toFixed(2)}</p>
-          <div class="tags">
-            <span class="tag">${livro.categoria}</span>
-          </div>
-        </div>
-        `;
+  elementoComValorTotalDeLivrosDisponiveis.textContent = "";
+  elementoParaInserirLivros.replaceChildren();
+  if (!listaDeLivros.length) {
+    elementoParaInserirLivros.textContent = "Nenhum livro encontrado para este filtro.";
+    return;
+  }
+  listaDeLivros.forEach(livro => {
+    const card = document.createElement("article");
+    card.className = "livro";
+    const imagem = document.createElement("img");
+    imagem.className = livro.quantidade > 0 ? "livro__imagens" : "livro__imagens indisponivel";
+    // Restrict remote image URLs without interpolating API content into HTML.
+    try {
+      const url = new URL(livro.imagem, document.baseURI);
+      if (["https:", "http:"].includes(url.protocol)) imagem.src = url.href;
+    } catch { /* A missing cover must not prevent displaying the book. */ }
+    imagem.alt = livro.alt || `Capa de ${livro.titulo}`;
+    imagem.loading = "lazy";
+    card.appendChild(imagem);
+    [["h2", "livro__titulo", livro.titulo], ["p", "livro__descricao", livro.autor],
+      ["p", "livro__preco", livro.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })],
+      ["span", "tag", livro.categoria]].forEach(([tag, classe, texto]) => {
+      const elemento = document.createElement(tag);
+      elemento.className = classe;
+      elemento.textContent = texto;
+      card.appendChild(elemento);
+    });
+    elementoParaInserirLivros.appendChild(card);
   });
 }
-
-//function verificarDisponibilidadeDoLivro(livro) {
-//  if (livro.quantidade > 0) {
-//    return "livro_imagens";
-//  } else {
-//    return "livro_imagens indisponivel";
-//  }
-//}

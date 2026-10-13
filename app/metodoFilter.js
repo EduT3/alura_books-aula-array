@@ -1,4 +1,4 @@
-const botoes = document.querySelectorAll(".btn");
+const botoes = document.querySelectorAll(".btn[value]");
 botoes.forEach((btn) => btn.addEventListener("click", filtrarLivros));
 
 function filtrarLivros() {
